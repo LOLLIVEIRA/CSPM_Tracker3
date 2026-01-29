@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% set show_header = true %}
+{% block title %}{{ ticket.ticket_id }} | CSPM Tracker{% endblock %}
+{% block content %}
+  {% from "partials/badges.html" import severity_badge, status_badge, provider_badge %}
+
+  <div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white">{{ ticket.ticket_id }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">Detalhes do ticket</p>
+      </div>
+      <a href="{{ url_for('misconfigurations') }}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+        Voltar
+      </a>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-xs uppercase text-slate-500 dark:text-slate-400">Severidade</p>
+          <div class="mt-2">{{ severity_badge(ticket.severity) }}</div>
+        </div>
+        <div>
+          <p class="text-xs uppercase text-slate-500 dark:text-slate-400">Provider</p>
+          <div class="mt-2">{{ provider_badge(ticket.provider) }}</div>
+        </div>
+        <div>
+          <p class="text-xs uppercase text-slate-500 dark:text-slate-400">Status</p>
+          <div class="mt-2">{{ status_badge(ticket.status) }}</div>
+        </div>
+        <div>
+          <p class="text-xs uppercase text-slate-500 dark:text-slate-400">Resolver</p>
+          <div class="mt-2 text-sm text-slate-700 dark:text-slate-300">
+            {{ ticket.resolver.name if ticket.resolver else "Não atribuído" }}
+          </div>
+        </div>
+        <div class="md:col-span-2">
+          <p class="text-xs uppercase text-slate-500 dark:text-slate-400">Descrição</p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">{{ ticket.description }}</p>
+        </div>
+        <div class="md:col-span-2">
+          <p class="text-xs uppercase text-slate-500 dark:text-slate-400">Resource</p>
+          <p class="mt-2 text-sm font-mono text-slate-600 dark:text-slate-400">{{ ticket.resource }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Atualizar Ticket</h2>
+      <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="hidden" name="action" value="update" />
+        <div>
+          <label class="text-sm text-slate-600 dark:text-slate-300">Status</label>
+          <select name="status" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white">
+            {% for status in ['Open', 'In Progress', 'Resolved', 'Overdue'] %}
+              <option value="{{ status }}" {% if ticket.status == status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-600 dark:text-slate-300">Resolvedor</label>
+          <select name="resolver_id" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white">
+            <option value="">Não atribuído</option>
+            {% for resolver in resolvers %}
+              <option value="{{ resolver.id }}" {% if ticket.resolver_id == resolver.id %}selected{% endif %}>{{ resolver.name }} ({{ resolver.email }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="md:col-span-2 flex items-center justify-end gap-3">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+            Salvar alterações
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-red-200 dark:border-red-800 p-6">
+      <h2 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">Excluir Ticket</h2>
+      <form method="POST">
+        <input type="hidden" name="action" value="delete" />
+        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
+          Excluir ticket
+        </button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

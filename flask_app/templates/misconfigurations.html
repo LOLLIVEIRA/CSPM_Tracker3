@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% set show_header = true %}
+{% block title %}Tickets | CSPM Tracker{% endblock %}
+{% block content %}
+  <div class="flex flex-col lg:flex-row gap-8">
+    <form method="GET" class="w-full lg:w-64 flex-shrink-0 space-y-8">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="filter" class="w-5 h-5"></i>
+          Filtros
+        </h2>
+        <a href="{{ url_for('misconfigurations') }}" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+          Limpar tudo
+        </a>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider">Buscar</h3>
+        <input type="text" name="search" value="{{ filters.search }}" placeholder="Buscar tickets..." class="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white transition-shadow" />
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider">Severidade</h3>
+        <div class="space-y-2">
+          {% for severity in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFORMAL'] %}
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <input type="checkbox" name="severity" value="{{ severity }}" {% if severity in filters.severity %}checked{% endif %} class="peer h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800" />
+              <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">{{ severity }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider">Provider</h3>
+        <div class="space-y-2">
+          {% for provider in ['AWS', 'GCP', 'Azure'] %}
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <input type="checkbox" name="provider" value="{{ provider }}" {% if provider in filters.provider %}checked{% endif %} class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800" />
+              <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">{{ provider }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider">Status</h3>
+        <div class="space-y-2">
+          {% set status_labels = {'Open': 'Aberto', 'In Progress': 'Em Progresso', 'Resolved': 'Resolvido', 'Overdue': 'Vencido'} %}
+          {% for status in ['Open', 'In Progress', 'Resolved', 'Overdue'] %}
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <input type="checkbox" name="status" value="{{ status }}" {% if status in filters.status %}checked{% endif %} class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800" />
+              <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                {{ status_labels[status] }}
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider">Resolvedor</h3>
+        <input type="text" name="resolver" value="{{ filters.resolver }}" placeholder="Buscar resolvedor..." class="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white transition-shadow" />
+      </div>
+
+      <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+        Aplicar Filtros
+      </button>
+    </form>
+
+    <div class="flex-1 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Tickets</h2>
+          <p class="text-slate-500 dark:text-slate-400">Gerencie misconfigurations e SLAs.</p>
+        </div>
+      </div>
+
+      {% set now = now %}
+      {% set compact = false %}
+      {% include "partials/tickets_table.html" %}
+    </div>
+  </div>
+{% endblock %}

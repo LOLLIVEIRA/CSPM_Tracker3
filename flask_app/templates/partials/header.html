@@ -1,0 +1,55 @@
+<header class="sticky top-0 z-40 w-full backdrop-blur-lg bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+  <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-8">
+      <a href="{{ url_for('dashboard') }}" class="flex items-center gap-2 group">
+        <div class="p-2 bg-blue-600 rounded-lg group-hover:bg-blue-700 transition-colors">
+          <i data-lucide="shield-check" class="text-white w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 dark:text-white leading-none">
+            CSPM <span class="text-blue-600 dark:text-blue-400">Tracker</span>
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">MONITOR SLA</p>
+        </div>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-1">
+        {% set path = request.path %}
+        <a href="{{ url_for('dashboard') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' if path == '/' else 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200' }}">
+          Dashboard
+        </a>
+        <a href="{{ url_for('misconfigurations') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' if path.startswith('/misconfigurations') else 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200' }}">
+          Tickets
+        </a>
+        <a href="{{ url_for('ranking') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' if path.startswith('/ranking') else 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200' }}">
+          Ranking
+        </a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('users') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' if path.startswith('/users') else 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200' }}">
+            Usuários
+          </a>
+          <a href="{{ url_for('settings') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' if path.startswith('/settings') else 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200' }}">
+            Configurações
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-3">
+      {% if current_user.is_admin %}
+        <a href="{{ url_for('new_ticket') }}" class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Novo Ticket</span>
+        </a>
+      {% endif %}
+      <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+      <button id="dark-mode-toggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Toggle dark mode">
+        <i data-lucide="moon" class="w-5 h-5"></i>
+      </button>
+      <a href="{{ url_for('logout') }}" class="flex items-center gap-2 px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm font-medium" title="Sair">
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Sair</span>
+      </a>
+    </div>
+  </div>
+</header>

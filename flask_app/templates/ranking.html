@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% set show_header = true %}
+{% block title %}Ranking | CSPM Tracker{% endblock %}
+{% block content %}
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+          <i data-lucide="trophy" class="w-8 h-8 text-yellow-500"></i>
+          Ranking de Resolvedores
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2">
+          Acompanhe quem está resolvendo mais vulnerabilidades
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+        <div class="flex items-center gap-3 mb-2">
+          <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Resolvidos</span>
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ total_resolved }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          {{ resolved_within_sla }} dentro do SLA • {{ resolved_outside_sla }} fora
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+        <div class="flex items-center gap-3 mb-2">
+          <i data-lucide="target" class="w-5 h-5 text-blue-500"></i>
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Conformidade SLA</span>
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ global_sla_compliance }}%</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Taxa de conformidade global</p>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+        <div class="flex items-center gap-3 mb-2">
+          <i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i>
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Vencidos</span>
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ total_overdue }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tickets em atraso</p>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+        <div class="flex items-center gap-3 mb-2">
+          <i data-lucide="user" class="w-5 h-5 text-purple-500"></i>
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Resolvedores Ativos</span>
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ ranking|length }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Com tickets atribuídos</p>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+        <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Classificação</h2>
+      </div>
+
+      {% if ranking|length == 0 %}
+        <div class="p-12 text-center">
+          <i data-lucide="trophy" class="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4"></i>
+          <p class="text-slate-500 dark:text-slate-400">Nenhum resolvedor com tickets atribuídos ainda.</p>
+        </div>
+      {% else %}
+        <div class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for stats in ranking %}
+            {% set idx = loop.index0 %}
+            {% if idx == 0 %}
+              {% set card = 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30' %}
+              {% set icon = 'trophy' %}
+            {% elif idx == 1 %}
+              {% set card = 'from-slate-400/20 to-slate-500/10 border-slate-400/30' %}
+              {% set icon = 'medal' %}
+            {% elif idx == 2 %}
+              {% set card = 'from-amber-600/20 to-amber-700/10 border-amber-600/30' %}
+              {% set icon = 'award' %}
+            {% else %}
+              {% set card = 'from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 border-slate-200 dark:border-slate-700' %}
+              {% set icon = '' %}
+            {% endif %}
+            {% set success_rate = (stats.resolved_count / stats.total_assigned * 100) | round(0) if stats.total_assigned else 0 %}
+            <div class="p-6 bg-gradient-to-r {{ card }} hover:shadow-lg transition-all">
+              <div class="flex items-center gap-6">
+                <div class="flex-shrink-0">
+                  {% if icon %}
+                    <i data-lucide="{{ icon }}" class="w-6 h-6 {% if idx == 0 %}text-yellow-500{% elif idx == 1 %}text-slate-400{% else %}text-amber-600{% endif %}"></i>
+                  {% else %}
+                    <div class="w-6 h-6 flex items-center justify-center text-slate-400 dark:text-slate-500 font-bold">{{ idx + 1 }}</div>
+                  {% endif %}
+                </div>
+                <div class="flex-shrink-0">
+                  <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-lg">
+                    {{ stats.resolver.name[:1].upper() }}
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white truncate">{{ stats.resolver.name }}</h3>
+                  <p class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ stats.resolver.email }}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                  <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
+                    <div class="text-xl font-bold text-green-600 dark:text-green-400">{{ stats.resolved_count }}</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Resolvidos</div>
+                    <div class="text-xs text-green-600 dark:text-green-400 mt-1">
+                      {{ stats.resolved_within_sla }} dentro SLA
+                    </div>
+                    {% if stats.resolved_outside_sla > 0 %}
+                      <div class="text-xs text-red-600 dark:text-red-400">
+                        {{ stats.resolved_outside_sla }} fora SLA
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
+                    <div class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ stats.sla_compliance_rate }}%</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Conformidade SLA</div>
+                    {% if stats.avg_resolution_time > 0 %}
+                      <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Média: {{ (stats.avg_resolution_time | round(0)) }}h
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="flex-shrink-0">
+                  <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div>
+                      <div class="font-semibold text-blue-600 dark:text-blue-400">{{ stats.in_progress_count }}</div>
+                      <div class="text-slate-500 dark:text-slate-400">Em Progresso</div>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-red-600 dark:text-red-400">{{ stats.overdue_count }}</div>
+                      <div class="text-slate-500 dark:text-slate-400">Vencidos</div>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-slate-900 dark:text-white">{{ stats.total_assigned }}</div>
+                      <div class="text-slate-500 dark:text-slate-400">Total</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 space-y-2">
+                <div>
+                  <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Taxa de Resolução: {{ success_rate }}%</span>
+                  </div>
+                  <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full" style="width: {{ success_rate }}%"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Conformidade SLA: {{ stats.sla_compliance_rate }}%</span>
+                  </div>
+                  <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    {% if stats.sla_compliance_rate >= 80 %}
+                      <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" style="width: {{ stats.sla_compliance_rate }}%"></div>
+                    {% elif stats.sla_compliance_rate >= 60 %}
+                      <div class="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full" style="width: {{ stats.sla_compliance_rate }}%"></div>
+                    {% else %}
+                      <div class="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full" style="width: {{ stats.sla_compliance_rate }}%"></div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                {% if stats.resolved_count > 0 %}
+                  <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                      Distribuição por Severidade (Resolvidos)
+                    </div>
+                    <div class="flex gap-1">
+                      {% for severity in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFORMAL'] %}
+                        {% set count = stats.severity_breakdown[severity] %}
+                        {% set percentage = (count / stats.resolved_count * 100) if stats.resolved_count else 0 %}
+                        {% set colors = {
+                          'CRITICAL': 'bg-red-600',
+                          'HIGH': 'bg-orange-500',
+                          'MEDIUM': 'bg-yellow-500',
+                          'LOW': 'bg-blue-500',
+                          'INFORMAL': 'bg-slate-400'
+                        } %}
+                        <div class="{{ colors[severity] }} rounded text-white text-[10px] px-1 py-0.5 flex-1 text-center" style="opacity: {{ 0.8 if count > 0 else 0.3 }}" title="{{ severity }}: {{ count }}">
+                          {{ count }}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

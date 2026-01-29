@@ -1,0 +1,91 @@
+{% from "partials/badges.html" import severity_badge, status_badge, provider_badge %}
+<div class="w-full overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
+  <table class="w-full text-left border-collapse">
+    <thead>
+      <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+        <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
+        <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Severidade</th>
+        {% if not compact %}
+          <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Provider</th>
+        {% endif %}
+        <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-1/3">Descrição</th>
+        {% if not compact %}
+          <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Resolvedor</th>
+        {% endif %}
+        <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+        {% if not compact %}
+          <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">SLA</th>
+        {% endif %}
+        <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+      {% for item in data %}
+        <tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="p-4 font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.ticket_id }}</td>
+          <td class="p-4">{{ severity_badge(item.severity) }}</td>
+          {% if not compact %}
+            <td class="p-4">{{ provider_badge(item.provider) }}</td>
+          {% endif %}
+          <td class="p-4">
+            <div class="max-w-md">
+              <p class="text-sm font-medium text-slate-900 dark:text-white truncate" title="{{ item.description }}">
+                {{ item.description }}
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1 truncate" title="{{ item.resource }}">
+                {{ item.resource }}
+              </p>
+            </div>
+          </td>
+          {% if not compact %}
+            <td class="p-4">
+              {% if item.resolver %}
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-medium text-blue-700 dark:text-blue-300">
+                    {{ item.resolver.name[:1] }}
+                  </div>
+                  <div>
+                    <p class="text-sm text-slate-700 dark:text-slate-300">{{ item.resolver.name }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ item.resolver.email }}</p>
+                  </div>
+                </div>
+              {% else %}
+                <span class="text-sm text-slate-400 italic">Não atribuído</span>
+              {% endif %}
+            </td>
+          {% endif %}
+          <td class="p-4">{{ status_badge(item.status) }}</td>
+          {% if not compact %}
+            <td class="p-4">
+              {% set remaining = (item.sla_deadline - now).total_seconds() %}
+              {% if remaining < 0 %}
+                <span class="text-sm text-red-600 dark:text-red-400">Vencido</span>
+              {% elif remaining < 86400 %}
+                <span class="text-sm text-orange-600 dark:text-orange-400 font-bold">{{ (remaining // 3600)|int }}h restantes</span>
+              {% else %}
+                <span class="text-sm text-slate-600 dark:text-slate-400">{{ (remaining // 86400)|int }}d {{ ((remaining % 86400) // 3600)|int }}h</span>
+              {% endif %}
+            </td>
+          {% endif %}
+          <td class="p-4 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <a href="{{ url_for('ticket_detail', ticket_id=item.ticket_id) }}" class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Ver detalhes">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="{{ 8 if not compact else 5 }}" class="p-12 text-center">
+            <div class="flex flex-col items-center justify-center text-slate-400">
+              <i data-lucide="search" class="mb-4 opacity-20 w-12 h-12"></i>
+              <p class="text-lg font-medium">Nenhum ticket encontrado</p>
+              <p class="text-sm">Tente ajustar os filtros</p>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

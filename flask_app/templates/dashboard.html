@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% set show_header = true %}
+{% block title %}Dashboard | CSPM Tracker{% endblock %}
+{% block content %}
+  <div class="space-y-8 animate-fade-in">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Visão Geral de Segurança</h2>
+      <p class="text-slate-500 dark:text-slate-400 mt-1">
+        Insights em tempo real sobre misconfigurations e conformidade SLA.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for metric in metrics %}
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+          <p class="text-sm text-slate-500 dark:text-slate-400">{{ metric.label }}</p>
+          <div class="mt-2 flex items-end justify-between">
+            <span class="text-3xl font-bold text-slate-900 dark:text-white">{{ metric.count }}</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">{{ metric.trend }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="activity" class="w-5 h-5 text-blue-500"></i>
+            Detecções Recentes
+          </h3>
+          <span class="text-sm text-slate-500">Últimas 24 horas</span>
+        </div>
+
+        {% set data = recent %}
+        {% set compact = true %}
+        {% set now = now %}
+        {% include "partials/tickets_table.html" %}
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="clock" class="w-5 h-5 text-purple-500"></i>
+          Status SLA
+        </h3>
+
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+          <div class="space-y-6">
+            <div>
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-slate-600 dark:text-slate-400">Critical (4h SLA)</span>
+                <span class="font-medium text-slate-900 dark:text-white">92%</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+                <div class="bg-red-500 h-2 rounded-full" style="width: 92%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-slate-600 dark:text-slate-400">High (24h SLA)</span>
+                <span class="font-medium text-slate-900 dark:text-white">88%</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+                <div class="bg-orange-500 h-2 rounded-full" style="width: 88%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-slate-600 dark:text-slate-400">Medium (7d SLA)</span>
+                <span class="font-medium text-slate-900 dark:text-white">98%</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 98%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex items-center gap-4">
+              <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
+                <i data-lucide="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-900 dark:text-white">Conformidade Geral</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">94.2%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

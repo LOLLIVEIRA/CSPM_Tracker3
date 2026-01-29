@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% set show_header = true %}
+{% block title %}Novo Ticket | CSPM Tracker{% endblock %}
+{% block content %}
+  <div class="max-w-3xl mx-auto space-y-6">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Novo Ticket</h1>
+      <p class="text-slate-500 dark:text-slate-400">Crie um novo ticket de misconfiguration.</p>
+    </div>
+
+    <form method="POST" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm text-slate-600 dark:text-slate-300">Severidade</label>
+          <select name="severity" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white">
+            {% for severity in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFORMAL'] %}
+              <option value="{{ severity }}">{{ severity }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-600 dark:text-slate-300">Provider</label>
+          <select name="provider" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white">
+            {% for provider in ['AWS', 'GCP', 'Azure'] %}
+              <option value="{{ provider }}">{{ provider }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="md:col-span-2">
+          <label class="text-sm text-slate-600 dark:text-slate-300">Resource</label>
+          <input name="resource" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="text-sm text-slate-600 dark:text-slate-300">Descrição</label>
+          <textarea name="description" rows="3" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white"></textarea>
+        </div>
+        <div>
+          <label class="text-sm text-slate-600 dark:text-slate-300">Resolvedor</label>
+          <select name="resolver_id" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white">
+            <option value="">Não atribuído</option>
+            {% for resolver in resolvers %}
+              <option value="{{ resolver.id }}">{{ resolver.name }} ({{ resolver.email }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-600 dark:text-slate-300">Status</label>
+          <select name="status" class="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white">
+            {% for status in ['Open', 'In Progress', 'Resolved', 'Overdue'] %}
+              <option value="{{ status }}">{{ status }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3">
+        <a href="{{ url_for('misconfigurations') }}" class="px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+          Cancelar
+        </a>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+          Criar ticket
+        </button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
