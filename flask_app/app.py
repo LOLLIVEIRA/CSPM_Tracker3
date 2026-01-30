@@ -380,15 +380,6 @@ def create_app():
                     db.session.add(resolver)
                     db.session.commit()
                     flash("Resolvedor adicionado.", "success")
-            elif action == "delete_resolver":
-                resolver_id = request.form.get("resolver_id")
-                resolver = Resolver.query.get(int(resolver_id)) if resolver_id else None
-                if resolver:
-                    for ticket in resolver.tickets:
-                        ticket.resolver_id = None
-                    db.session.delete(resolver)
-                    db.session.commit()
-                    flash("Resolvedor removido.", "success")
             elif action == "delete_all_tickets":
                 Misconfiguration.query.delete()
                 db.session.commit()
@@ -408,6 +399,20 @@ def create_app():
         resolvers = Resolver.query.order_by(Resolver.name.asc()).all()
         total_tickets = Misconfiguration.query.count()
         return render_template("settings.html", resolvers=resolvers, total_tickets=total_tickets)
+
+    @app.route("/resolvers/<int:resolver_id>/delete", methods=["POST"])
+    @login_required
+    def delete_resolver(resolver_id):
+        if not current_user.is_admin:
+            return redirect(url_for("dashboard"))
+
+        resolver = Resolver.query.get_or_404(resolver_id)
+        for ticket in resolver.tickets:
+            ticket.resolver_id = None
+        db.session.delete(resolver)
+        db.session.commit()
+        flash("Resolvedor removido.", "success")
+        return redirect(url_for("settings"))
 
     @app.route("/api/crowdstrike/webhook", methods=["POST"])
     def crowdstrike_webhook():

@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timedelta
 
 import requests
+from flask import current_app
 
 from models import db, User, Resolver, Misconfiguration
 
@@ -235,7 +236,13 @@ def fetch_and_import_crowdstrike(limit=50, filter_query=None):
 
 
 def seed_mock_data_if_empty():
+    marker_path = os.path.join(current_app.instance_path, "data", ".seeded_mock_data")
+    if os.path.exists(marker_path):
+        return
+
     if Misconfiguration.query.first():
+        with open(marker_path, "w", encoding="utf-8") as marker_file:
+            marker_file.write("seeded\n")
         return
 
     existing_resolvers = Resolver.query.all()
@@ -277,3 +284,6 @@ def seed_mock_data_if_empty():
         db.session.add(ticket)
 
     db.session.commit()
+
+    with open(marker_path, "w", encoding="utf-8") as marker_file:
+        marker_file.write("seeded\n")
